@@ -27,8 +27,10 @@ char ScanRows();
 /***************************************Initialize*********************************************/
 void KeypadInitialize() {
 
-//AD1PCFGbits.PCFG4 = 1;
-
+AD1PCFGbits.PCFG4 = 1;
+AD1PCFGbits.PCFG5 = 1;
+AD1PCFGbits.PCFG0 = 1;
+AD1PCFGbits.PCFG1 = 1;
 // Configure cols->inputs and rows->outputs
 TRISBbits.TRISB2  = 1;
 TRISBbits.TRISB3  = 1;
@@ -59,9 +61,9 @@ ODCAbits.ODA0 =  1;
 ODCAbits.ODA1 =  1;
 
 //Initialize inputs pins to off
-//LATBbits.LATB2 = 1;
-//LATBbits.LATB3 = 1;
-//LATBbits.LATB5 = 0;
+LATBbits.LATB2 = 1;
+LATBbits.LATB3 = 1;
+LATBbits.LATB5 = 1;
 
 }
 

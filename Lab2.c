@@ -103,12 +103,12 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
 	 if((key == '*') && (input_code[0] == 'X')) 
        {
         LCDMoveCursor(1,0);		
-        LCDPrintChar(key);                                                  //////////////////////////////////////when to lower safeguard flag??????????????????
+        LCDPrintChar(key);                                                  //when to lower flag
         input_code[0] = '*';
-        safeguard=1
+        safeguard=1;
        }
         
-     if((key == '*') && (safeguard==1) // user has entered program mode
+     else if((key == '*') && (safeguard==1)) // user has entered program mode
        {
         LCDMoveCursor(1,1);		
         LCDPrintChar(key);
@@ -337,7 +337,6 @@ void __attribute__((interrupt,auto_psv)) _CNInterrupt(void)
 }
 
 void __attribute__((interrupt,auto_psv)) _T1Interrupt(void)
-     {
-      IFS0bits.T1IF = 0; //clear Timer 1 interrupt flag
-     
-     }
+{
+   IFS0bits.T1IF = 0; //clear Timer 1 interrupt flag
+}
