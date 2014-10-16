@@ -54,6 +54,7 @@ int main(void)
  int cnt1=0, cnt2=0, cnt3=0, cnt4=0, cnt5=0;
  int valid_cnt=0;
  int reset=1;
+ int safeguard=0;
  int mode=0; // 1 = user mode; 2 = program mode
  
 //***************************************Password Database*************************************//
@@ -102,15 +103,17 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
 	 if((key == '*') && (input_code[0] == 'X')) 
        {
         LCDMoveCursor(1,0);		
-        LCDPrintChar(key);
+        LCDPrintChar(key);                                                  //////////////////////////////////////when to lower safeguard flag??????????????????
         input_code[0] = '*';
+        safeguard=1
        }
         
-     if((key == '*') && (input_code[0] == '*')) // user has entered program mode
+     if((key == '*') && (safeguard==1) // user has entered program mode
        {
         LCDMoveCursor(1,1);		
         LCDPrintChar(key);
         mode = 2; // program mode
+        safeguard=0;
         for(i=0; i<4; i++)
           input_code[i] = 'X';  // re-initialize 
         delay(); // 1 sec
@@ -118,13 +121,14 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
         LCDPrintString("Set Mode");
        }
       
-     else if((key != '*') && (input_code[0] == '*')) 
+     else if((key != '*') && (safeguard==1)) 
        {
         LCDClear();
         LCDPrintString("Invalid"); 
         delay(); // 1 sec
         delay(); // 1 sec
         reset=1;
+        safeguard=0;
         for(i=0; i<4; i++)
           input_code[i] = 'X';
       }
@@ -225,8 +229,9 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
        }
 
  //**************************************User Mode********************************************//
-
-     if((key != -1) && (key!='*') && (key != '#')) // and mode=1
+if(safeguard==0 && mode!=2)
+{
+     if((key != -1) && (key!='*') && (key != '#')) 
             {
              if(input_code[0]== 'X')
               {
@@ -256,7 +261,7 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
                delay(); // 1 sec delay	
 			  }
            }
- /*    else if((key == '*') || (key == '#'))   ////////////////////need to ask if a pressing two at the same is considered "bad" or just ignore
+     else   // pressing buttons simultaneously will result in "BAD"                  
         {
          LCDClear();
          LCDPrintString("Bad");
@@ -265,9 +270,10 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
          reset = 1;
          for(i=0; i<4; i++)
           input_code[i] = 'X'; // re-initialize user input
-        }    */
-        
+        }    
+}        
 //********************************Compare User Input with Database************************//          
+     
      if(check_password == 1)
              {
               check_password = 0; // set flag low
@@ -330,4 +336,8 @@ void __attribute__((interrupt,auto_psv)) _CNInterrupt(void)
     scanKeypad = 1;
 }
 
-
+void __attribute__((interrupt,auto_psv)) _T1Interrupt(void)
+     {
+      IFS0bits.T1IF = 0; //clear Timer 1 interrupt flag
+     
+     }
