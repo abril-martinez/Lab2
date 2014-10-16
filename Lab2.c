@@ -117,6 +117,17 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
         LCDClear();
         LCDPrintString("Set Mode");
        }
+      
+     else if((key != '*') && (input_code[0] == '*')) 
+       {
+        LCDClear();
+        LCDPrintString("Invalid"); 
+        delay(); // 1 sec
+        delay(); // 1 sec
+        reset=1;
+        for(i=0; i<4; i++)
+          input_code[i] = 'X';
+      }
 
 //***************************************In Program Mode*************************************//           
         
