@@ -26,12 +26,7 @@ char ScanRows();
 
 /***************************************Initialize*********************************************/
 void KeypadInitialize() {
-	
-// TODO: Configure IOs and Change Notificaiton interrupt for keypad scanning. This 
-// configuration should ensure that if any key is pressed, a change notification interrupt 
-// will be generated.
 
-//AD1PCFGbits.PCFG4 = 1;
 //AD1PCFGbits.PCFG4 = 1;
 
 // Configure cols->inputs and rows->outputs
@@ -66,8 +61,7 @@ ODCAbits.ODA1 =  1;
 //Initialize inputs pins to off
 //LATBbits.LATB2 = 1;
 //LATBbits.LATB3 = 1;
-//
-LATBbits.LATB5 = 0;
+//LATBbits.LATB5 = 0;
 
 }
 
@@ -95,15 +89,7 @@ void active_column(int col) // set one column active
       LATBbits.LATB3 = 1;
 	  LATBbits.LATB5 = 0; 
      }
-    
-   //default set all on
-/*   else 
-     {
-      LATBbits.LATB2 = 0;
-      LATBbits.LATB3 = 0;
-	  LATBbits.LATB5 = 0; 
-     }  */
-}
+  }
 
 // **************************************KeyPad Scan***************************************************** //
 

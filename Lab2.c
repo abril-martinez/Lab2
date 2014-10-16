@@ -27,13 +27,23 @@ _CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF &
 _CONFIG2( IESO_OFF & SOSCSEL_SOSC & WUTSEL_LEG & FNOSC_PRIPLL & FCKSM_CSDCMD & OSCIOFNC_OFF &
 		 IOL1WAY_OFF & I2C1SEL_PRI & POSCMOD_XT )
 
-// ******************************************************************************************* //
+// ************************************Delay fuction***************************************** //
+
+void delay(void) 
+	 {
+	  T1CONbits.TON = 1; // start timer 
+	  while(IFS0bits.T1IF == 0);  // wait (2secs)
+	  T1CONbits.TON = 0; // turn off timer1
+	  TMR1 = 0; // Reset Timer1
+	  IFS0bits.T1IF = 0; // reset flag
+     }
+
+//********************************************************************************************//
 
 // Varible used to indicate that the current configuration of the keypad has been changed,
 // and the KeypadScan() function needs to be called.
 
 volatile char scanKeypad;
-
 // ******************************************************************************************* //
 
 int main(void)
@@ -45,9 +55,6 @@ int main(void)
  int valid_cnt=0;
  int reset=1;
  int mode=0; // 1 = user mode; 2 = program mode
- //char prev_key;
- //char curr_key;
- 
  
 //***************************************Password Database*************************************//
 char pass_code1[4] = {'1','2','3','4'};
@@ -58,10 +65,19 @@ char pass_code5[4] = {'X','X','X','X'};
  
  char input_code[4] = {'X', 'X','X','X'};
  char set_code[4] = {'Z', 'Z', 'Z', 'Z'};
+
+//********************************************Timer1******************************************//
+
+// Timer 1 used for delay
+T1CONbits.TCKPS1 = 1;
+T1CONbits.TCKPS0 = 1;
+IEC0bits.T1IE = 1; // enable interrupt for Timer1
+PR1 = 57600; // Timer 1's period value regsiter to value for 1 sec.
+T1CONbits.TON = 0;	// Set Timer 3 to be initially off.
+TMR1 = 0; // Clear Timer 1 value      
+IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
     
-	
-	// TODO: Initialize and configure IOs, LCD (using your code from Lab 1), 
-	// UART (if desired for debugging), and any other configurations that are needed.
+//******************************************Initialize****************************************//
 	
  LCDInitialize();
  KeypadInitialize();
@@ -143,7 +159,8 @@ char pass_code5[4] = {'X','X','X','X'};
          {
           LCDClear();
           LCDPrintString("Valid");
-          // delay 2 secs
+          delay(); // 1 sec
+          delay(); // 1 sec
           mode=1; // reset back to user mode
           valid_cnt=0; // reset counter
           reset=1; //reset system
@@ -180,7 +197,8 @@ char pass_code5[4] = {'X','X','X','X'};
          {
           LCDClear();
           LCDPrintString("Invalid");
-          // delay 2 secs
+          delay(); // 1 sec
+          delay(); // 1 sec
           mode=1; // reset to user mode
           valid_cnt=0;
           reset=1;
@@ -193,7 +211,8 @@ char pass_code5[4] = {'X','X','X','X'};
        {
         LCDClear();
         LCDPrintString("Invalid");
-        // delay 2 secs
+        delay(); // 1 sec
+        delay(); // 1 sec
         mode=1; // reset to user mode
         valid_cnt=0;
         reset=1;
@@ -230,13 +249,15 @@ char pass_code5[4] = {'X','X','X','X'};
                reset = 1; // raise reset flag
                LCDMoveCursor(1,3);
                LCDPrintChar(key);
-              // delay for 1 sec	
+               delay(); // 1 sec delay	
 			  }
            }
      else if((key == '*') || (key == '#'))   ////////////////////need to ask if a pressing two at the same is considered "bad" or just ignore
         {
          LCDClear();
          LCDPrintString("Bad");
+         delay(); // 1 sec
+         delay(); // 1 sec
          reset = 1;
          for(i=0; i<4; i++)
           input_code[i] = 'X'; // re-initialize user input
@@ -268,13 +289,15 @@ char pass_code5[4] = {'X','X','X','X'};
                 {
                  LCDClear();
                  LCDPrintString("Good");
-                 // wait 2 secs 
+                 delay(); // 1 sec
+                 delay(); // 1 sec
               	}
               else  // incorrect password entered  
                 {
                  LCDClear();
                  LCDPrintString("Bad"); 
-                 // wait 2 secs
+                 delay(); // 1 sec
+                 delay(); // 1 sec
                 }
                
                cnt1=0; // reset match password counter1
