@@ -32,9 +32,9 @@ _CONFIG2( IESO_OFF & SOSCSEL_SOSC & WUTSEL_LEG & FNOSC_PRIPLL & FCKSM_CSDCMD & O
 void delay(void) 
 	 {
 	  T1CONbits.TON = 1; // start timer 
-	  while(IFS0bits.T1IF == 0);  // wait (2secs)
+	  while(IFS0bits.T1IF == 0);  // wait (1sec)
 	  T1CONbits.TON = 0; // turn off timer1
-	  TMR1 = 0; // Reset Timer1
+	  TMR1 = 0; // Reset Timer1 counter
 	  IFS0bits.T1IF = 0; // reset flag
      }
 
@@ -63,8 +63,8 @@ char pass_code3[4] = {'X','X','X','X'};
 char pass_code4[4] = {'X','X','X','X'};
 char pass_code5[4] = {'X','X','X','X'};
  
- char input_code[4] = {'X', 'X','X','X'};
- char set_code[4] = {'Z', 'Z', 'Z', 'Z'};
+char input_code[4] = {'X', 'X','X','X'};
+char set_code[4] = {'Z', 'Z', 'Z', 'Z'};
 
 //********************************************Timer1******************************************//
 
@@ -97,8 +97,9 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
      {
       key = KeypadScan();
      
+//**********************************Check if Program Mode Initiated*************************//     
      
-     if((key == '*') && (input_code[0] == 'X')) 
+	 if((key == '*') && (input_code[0] == 'X')) 
        {
         LCDMoveCursor(1,0);		
         LCDPrintChar(key);
@@ -111,12 +112,13 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
         LCDPrintChar(key);
         mode = 2; // program mode
         for(i=0; i<4; i++)
-          input_code[i] = 'X';
-        // delay 1 sec
+          input_code[i] = 'X';  // re-initialize 
+        delay(); // 1 sec
         LCDClear();
         LCDPrintString("Set Mode");
        }
-           
+
+//***************************************In Program Mode*************************************//           
         
      if(mode==2)
        {
@@ -222,7 +224,7 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
 
 //**************************************User Mode***************************************//
 
-     if((key != -1) && (key!='*') && (key != '#'))
+     if((key != -1) && (key!='*') && (key != '#')) // and mode=1
             {
              if(input_code[0]== 'X')
               {
@@ -252,7 +254,7 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
                delay(); // 1 sec delay	
 			  }
            }
-     else if((key == '*') || (key == '#'))   ////////////////////need to ask if a pressing two at the same is considered "bad" or just ignore
+ /*    else if((key == '*') || (key == '#'))   ////////////////////need to ask if a pressing two at the same is considered "bad" or just ignore
         {
          LCDClear();
          LCDPrintString("Bad");
@@ -261,31 +263,31 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
          reset = 1;
          for(i=0; i<4; i++)
           input_code[i] = 'X'; // re-initialize user input
-        }
-       
-          
+        }    */
+        
+//********************************Compare User Input with Database************************//          
      if(check_password == 1)
              {
               check_password = 0; // set flag low
               for(i=0; i<4; i++)
                 {
-                 if(input_code[i] == pass_code1[i])
+                 if(input_code[i] == pass_code1[i]) // compare with password1
                    cnt1++;
 
-                 if(input_code[i] == pass_code2[i])
+                 if(input_code[i] == pass_code2[i]) // compare with password2
                    cnt2++;
 
-                 if(input_code[i] == pass_code3[i])
+                 if(input_code[i] == pass_code3[i]) // compare with password3
                    cnt3++;
 
-                 if(input_code[i] == pass_code4[i])
+                 if(input_code[i] == pass_code4[i]) // compare with password4
                    cnt4++;
 
-                 if(input_code[i] == pass_code5[i])
+                 if(input_code[i] == pass_code5[i]) // compare with password5
                    cnt5++;
 				}
               
-              if((cnt1==4) || (cnt2==4) || (cnt3==4) || (cnt4==4) || (cnt5==4)) // all 4-digits match **correct password**
+              if((cnt1==4) || (cnt2==4) || (cnt3==4) || (cnt4==4) || (cnt5==4)) // correct password
                 {
                  LCDClear();
                  LCDPrintString("Good");
@@ -300,6 +302,7 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
                  delay(); // 1 sec
                 }
                
+               reset=1; 
                cnt1=0; // reset match password counter1
                cnt2=0; // reset match password counter2
                cnt3=0; // reset match password counter3
