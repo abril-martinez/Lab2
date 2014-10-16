@@ -50,7 +50,7 @@ int main(void)
 {
  char key;
  int i=0;
- int check_password=0;
+ int check_password=0, password_set=0;
  int cnt1=0, cnt2=0, cnt3=0, cnt4=0, cnt5=0;
  int valid_cnt=0;
  int reset=1;
@@ -120,109 +120,100 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
 
 //***************************************In Program Mode*************************************//           
         
-     if(mode==2)
+     if(mode==2) 
        {
-        if(set_code[0] == 'Z')
+        
+		if(password_set==0)
           {
-           set_code[0] = key;
-           LCDMoveCursor(1,0);
-           LCDPrintChar(key);
+           if(set_code[0] == 'Z')
+            {
+             set_code[0] = key;
+             LCDMoveCursor(1,0);
+             LCDPrintChar(key);
+            }
+           else if((set_code[0]!= 'Z') && (set_code[1] == 'Z'))
+            {
+             set_code[1] = key;
+             LCDMoveCursor(1,1);
+             LCDPrintChar(key);
+ 		    }
+           else if((set_code[1] != 'Z') && (set_code[2] == 'Z'))
+            {
+             set_code[2] = key;
+             LCDMoveCursor(1,2);
+             LCDPrintChar(key); 
+            }
+           else if((set_code[2] != 'Z') && (set_code[3] == 'Z'))
+            {
+             set_code[3] = key;
+             LCDMoveCursor(1,3);
+             LCDPrintChar(key);
+             password_set=1; // 4 characters have been entered	
+		    }
           }
-        else if((set_code[0]!= 'Z') && (set_code[1] == 'Z'))
-          {
-           set_code[1] = key;
-           LCDMoveCursor(1,1);
-           LCDPrintChar(key);
- 		  }
-        else if((set_code[1] != 'Z') && (set_code[2] == 'Z'))
-          {
-           set_code[2] = key;
-           LCDMoveCursor(1,2);
-           LCDPrintChar(key); 
-          }
-        else if((set_code[2] != 'Z') && (set_code[3] == 'Z'))
-          {
-           set_code[3] = key;
-           LCDMoveCursor(1,3);
-           LCDPrintChar(key);	
-		  }
-       }
-  
-
-
-     if((mode == 2) && (set_code[3] != 'Z') && (key == '#')) 
-       {
-        for(i=0; i<4; i++)
-         {
-          if((set_code[i] != '*') && (set_code[i] != '#'))
-           valid_cnt++;
-         }  
-        if (valid_cnt == 4)
-         {
-          LCDClear();
-          LCDPrintString("Valid");
-          delay(); // 1 sec
-          delay(); // 1 sec
-          mode=1; // reset back to user mode
-          valid_cnt=0; // reset counter
-          reset=1; //reset system
+        
+		else if((password_set == 1) && (key == '#')) // user input 4 characters followed by #
+           {
+            for(i=0; i<4; i++) // check if characters entered make a valid passcode
+             {
+              if((set_code[i] != '*') && (set_code[i] != '#'))
+                valid_cnt++;
+             }  
+            if (valid_cnt == 4)
+             {
+              LCDClear();
+              LCDPrintString("Valid");
+              delay(); // 1 sec
+              delay(); // 1 sec
+              mode=1; // reset back to user mode
+              valid_cnt=0; // reset counter
+              reset=1; //reset system
+              password_set=0;
           
-          // update password database
-          if(pass_code2[3] == 'X')
+              // update password database
+              if(pass_code2[3] == 'X')
+               {
+                for(i=0; i<4; i++)
+                 pass_code2[i]=set_code[i];
+               }
+              else if(pass_code3[3] == 'X')
+               {
+                for(i=0; i<4; i++)
+                  pass_code3[i]=set_code[i];
+               }
+             else if(pass_code4[3] == 'X')
+               {
+                for(i=0; i<4; i++)
+                  pass_code4[i]=set_code[i];
+               }
+            else if(pass_code5[3] == 'X')
+               {
+                for(i=0; i<4; i++)
+                  pass_code5[i]=set_code[i];
+               }
+        
+           // Override set_code array to reuse
+           for(i=0; i<4; i++)
+             set_code[i]= 'Z'; 
+            }
+          }
+        
+		else if ((password_set == 1) && (key != '#'))  // user input 4 characters but failed to follow-up with #     
            {
+            LCDClear();
+            LCDPrintString("Invalid");
+            delay(); // 1 sec
+            delay(); // 1 sec
+            mode=1; // reset to user mode
+            valid_cnt=0;
+            reset=1;
+            password_set=0;
             for(i=0; i<4; i++)
-             pass_code2[i]=set_code[i];
+              set_code[i]= 'Z';
            }
-          else if(pass_code3[3] == 'X')
-           {
-            for(i=0; i<4; i++)
-             pass_code3[i]=set_code[i];
-           }
-          else if(pass_code4[3] == 'X')
-           {
-            for(i=0; i<4; i++)
-             pass_code4[i]=set_code[i];
-           }
-          else if(pass_code5[3] == 'X')
-           {
-            for(i=0; i<4; i++)
-             pass_code5[i]=set_code[i];
-           }
-        // Override set_code array to reuse
-        for(i=0; i<4; i++)
-          set_code[i]= 'Z'; 
-
-
-
-         }
-        else                        //((set_code1[3] != 'Z') && (key != '#'))         //////////////////////what???????
-         {
-          LCDClear();
-          LCDPrintString("Invalid");
-          delay(); // 1 sec
-          delay(); // 1 sec
-          mode=1; // reset to user mode
-          valid_cnt=0;
-          reset=1;
-          for(i=0; i<4; i++)
-          set_code[i]= 'Z';
-         }
        }
 
-     else if((mode = 2) && (set_code[3] != 'Z') && (key != '#'))
-       {
-        LCDClear();
-        LCDPrintString("Invalid");
-        delay(); // 1 sec
-        delay(); // 1 sec
-        mode=1; // reset to user mode
-        valid_cnt=0;
-        reset=1;
-        for(i=0; i<4; i++)
-        set_code[i]= 'Z';
-       }
-
-//**************************************User Mode***************************************//
+ //**************************************User Mode********************************************//
 
      if((key != -1) && (key!='*') && (key != '#')) // and mode=1
             {
