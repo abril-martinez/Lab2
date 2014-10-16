@@ -6,17 +6,17 @@
 
 // ******************************************************************************************* //
 
-#define KEYPAD_C0			PORTBbits.RB2
-#define KEYPAD_C1		    PORTBbits.RB3	
-#define KEYPAD_C2			PORTBbits.RB5 
-#define KEYPAD_R0			PORTBbits.RB11 
-#define KEYPAD_R1			PORTBbits.RB10 
-#define KEYPAD_R2			PORTAbits.RA0 
-#define KEYPAD_R3			PORTAbits.RA1 
+#define KEY_C0			PORTBbits.RB2
+#define KEY_C1		    PORTBbits.RB3	
+#define KEY_C2			PORTBbits.RB5 
+#define KEY_R0			PORTBbits.RB11 
+#define KEY_R1			PORTBbits.RB10 
+#define KEY_R2			PORTAbits.RA0 
+#define KEY_R3			PORTAbits.RA1 
 
 /************************************Variables*************************************************/
 
-char returnChar;
+char returnChar = 'Z';
 
 /***********************************Fucntion Prototypes****************************************/
 void KeypadInitialize();
@@ -31,6 +31,7 @@ AD1PCFGbits.PCFG4 = 1;
 AD1PCFGbits.PCFG5 = 1;
 AD1PCFGbits.PCFG0 = 1;
 AD1PCFGbits.PCFG1 = 1;
+
 // Configure cols->inputs and rows->outputs
 TRISBbits.TRISB2  = 1;
 TRISBbits.TRISB3  = 1;
@@ -132,82 +133,82 @@ char ScanRows()
    
      if(column == 0) 
       {
-       if(KEYPAD_R0 == 0 && KEYPAD_R1 ==1 && KEYPAD_R2 == 1 && KEYPAD_R3 == 1) 
+       if((KEY_R0 == 1))// && (KEY_R1 == 1) && (KEY_R2 == 1) && (KEY_R3 == 1)) 
         {
          returnChar = '1';
-         while(KEYPAD_R0== 0); // wait for button release
+       //  while(KEY_R0== 1); // wait for button release
         }
-       else if(KEYPAD_R1 == 0 && KEYPAD_R0 == 1 && KEYPAD_R2 == 1 && KEYPAD_R3 ==1)
+       else if(KEY_R1 == 0 && KEY_R0 == 1 && KEY_R2 == 1 && KEY_R3 ==1)
         {
          returnChar = '4';
-         while(KEYPAD_R1==0); // wait for button release
+         while(KEY_R1==0); // wait for button release
         }
-	   else if(KEYPAD_R2 == 0 && KEYPAD_R0 == 1 && KEYPAD_R1 == 1 && KEYPAD_R3 == 1)
+	   else if(KEY_R2 == 0)// && KEY_R0 == 1 && KEY_R1 == 1 && KEY_R3 == 1)
         {
          returnChar = '7';
-         while(KEYPAD_R2==0); // wait for button release
+         while(KEY_R2==0); // wait for button release
         }
-       else if(KEYPAD_R3 == 0 && KEYPAD_R0 == 1 && KEYPAD_R1 == 1 && KEYPAD_R2 == 1)
+       else if(KEY_R3 == 0 && KEY_R0 == 1 && KEY_R1 == 1 && KEY_R2 == 1)
         { 
          returnChar = '*';
-         while(KEYPAD_R3 ==0); // wait for button release
+         while(KEY_R3 ==0); // wait for button release
         }
       }
 
     
      else if(column == 1) 
        {
-       if(KEYPAD_R0 == 0 && KEYPAD_R1 ==1 && KEYPAD_R2 == 1 && KEYPAD_R3 == 1) 
+       if(KEY_R0 == 0 && KEY_R1 ==1 && KEY_R2 == 1 && KEY_R3 == 1) 
         {
          returnChar = '2';
-         while(KEYPAD_R0== 0); // wait for button release
+         while(KEY_R0== 0); // wait for button release
         }
-       else if(KEYPAD_R1 == 0 && KEYPAD_R0 == 1 && KEYPAD_R2 == 1 && KEYPAD_R3 ==1)
+       else if(KEY_R1 == 0 && KEY_R0 == 1 && KEY_R2 == 1 && KEY_R3 ==1)
         {
          returnChar = '5';
-         while(KEYPAD_R1==0); // wait for button release
+         while(KEY_R1==0); // wait for button release
         }
-	   else if(KEYPAD_R2 == 0 && KEYPAD_R0 == 1 && KEYPAD_R1 == 1 && KEYPAD_R3 == 1)
+	   else if(KEY_R2 == 0 && KEY_R0 == 1 && KEY_R1 == 1 && KEY_R3 == 1)
         {
          returnChar = '8';
-         while(KEYPAD_R2==0); // wait for button release
+         while(KEY_R2==0); // wait for button release
         }
-      else if(KEYPAD_R3 == 0 && KEYPAD_R0 == 1 && KEYPAD_R1 == 1 && KEYPAD_R2 == 1)
+      else if(KEY_R3 == 0 && KEY_R0 == 1 && KEY_R1 == 1 && KEY_R2 == 1)
         { 
          returnChar = '0';
-         while(KEYPAD_R3 ==0); // wait for button release
+         while(KEY_R3 ==0); // wait for button release
         }
        }
 
     
       else if(column == 2) 
         {
-       if(KEYPAD_R0 == 0 && KEYPAD_R1 ==1 && KEYPAD_R2 == 1 && KEYPAD_R3 == 1) 
+       if(KEY_R0 == 0 && KEY_R1 ==1 && KEY_R2 == 1 && KEY_R3 == 1) 
         {
          returnChar = '3';
-         while(KEYPAD_R0== 0); // wait for button release
+         while(KEY_R0== 0); // wait for button release
         }
-       else if(KEYPAD_R1 == 0 && KEYPAD_R0 == 1 && KEYPAD_R2 == 1 && KEYPAD_R3 ==1)
+       else if(KEY_R1 == 0 && KEY_R0 == 1 && KEY_R2 == 1 && KEY_R3 ==1)
         {
          returnChar = '6';
-         while(KEYPAD_R1==0); // wait for button release
+         while(KEY_R1==0); // wait for button release
         }
-	   else if(KEYPAD_R2 == 0 && KEYPAD_R0 == 1 && KEYPAD_R1 == 1 && KEYPAD_R3 == 1)
+	   else if(KEY_R2 == 0 && KEY_R0 == 1 && KEY_R1 == 1 && KEY_R3 == 1)
         {
          returnChar = '9';
-         while(KEYPAD_R2==0); // wait for button release
+         while(KEY_R2==0); // wait for button release
         }
-       else if(KEYPAD_R3 == 0 && KEYPAD_R0 == 1 && KEYPAD_R1 == 1 && KEYPAD_R2 == 1)
+       else if(KEY_R3 == 0 && KEY_R0 == 1 && KEY_R1 == 1 && KEY_R2 == 1)
         { 
          returnChar = '#';
-         while(KEYPAD_R3 ==0); // wait for button release
+         while(KEY_R3 ==0); // wait for button release
         }
        }
 
       else
         {
          returnChar = -1; // either no button pressed or buttons simulataneously pressed
-         while(KEYPAD_R0 == 0 || KEYPAD_R1 == 0 || KEYPAD_R2 == 0 || KEYPAD_R3 == 0); // wait for button(s) to be released
+         while(KEY_R0 == 0 || KEY_R1 == 0 || KEY_R2 == 0 || KEY_R3 == 0); // wait for button(s) to be released
         } 
      
      }   
