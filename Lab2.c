@@ -54,7 +54,7 @@ int main(void)
  int cnt1=0, cnt2=0, cnt3=0, cnt4=0, cnt5=0;
  int valid_cnt=0;
  int reset=1;
- int safeguard=0;
+ int safeguard1=0, safeguard2=0;
  int mode=0; // 1 = user mode; 2 = program mode
  
 //***************************************Password Database*************************************//
@@ -100,45 +100,48 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
      
 //**********************************Check if Program Mode Initiated*************************//     
      
-	 if((key == '*') && (input_code[0] == 'X')) 
+	 if((key == 0x2A) && (input_code[0] == 'X'))  // "*" = 0x2A
        {
         LCDMoveCursor(1,0);		
         LCDPrintChar(key);                                                  //when to lower flag
-        input_code[0] = '*';
-        safeguard=1;
+        input_code[0] = 0x2A;
+        safeguard1=1;
        }
         
-     else if((key == '*') && (safeguard==1)) // user has entered program mode
+     else if((key == 0x2A) && (input_code[0] == 0x2A)) // user has entered program mode
        {
         LCDMoveCursor(1,1);		
         LCDPrintChar(key);
+        delay(); // 1 sec
+        LCDClear();
         mode = 2; // program mode
-        safeguard=0;
+        safeguard1=0;
+        safeguard2=1;
         for(i=0; i<4; i++)
           input_code[i] = 'X';  // re-initialize 
-        delay(); // 1 sec
         LCDClear();
         LCDPrintString("Set Mode");
        }
       
-     else if((key != '*') && (safeguard==1)) 
+     else if((key != 0x2A) && (input_code[0] == 0x2A)) // user only entered one "*" never entered program mode
        {
         LCDClear();
         LCDPrintString("Invalid"); 
         delay(); // 1 sec
         delay(); // 1 sec
         reset=1;
-        safeguard=0;
+        safeguard1=0;
+        safeguard2=1;
         for(i=0; i<4; i++)
-          input_code[i] = 'X';
-      }
+          input_code[i] = 'X'; 
+      } 
 
 //***************************************In Program Mode*************************************//           
         
      if(mode==2) 
        {
         
-		if(password_set==0)
+		if((password_set==0) && (safeguard2 !=1))
           {
            if(set_code[0] == 'Z')
             {
@@ -167,11 +170,11 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
 		    }
           }
         
-		else if((password_set == 1) && (key == '#')) // user input 4 characters followed by #
+		else if((password_set == 1) && (key == 0x23)) // user input 4 characters followed by # = 0x23
            {
             for(i=0; i<4; i++) // check if characters entered make a valid passcode
              {
-              if((set_code[i] != '*') && (set_code[i] != '#'))
+              if((set_code[i] != '*') && (set_code[i] != 0x23))
                 valid_cnt++;
              }  
             if (valid_cnt == 4)
@@ -196,12 +199,12 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
                 for(i=0; i<4; i++)
                   pass_code3[i]=set_code[i];
                }
-             else if(pass_code4[3] == 'X')
+              else if(pass_code4[3] == 'X')
                {
                 for(i=0; i<4; i++)
                   pass_code4[i]=set_code[i];
                }
-            else if(pass_code5[3] == 'X')
+              else if(pass_code5[3] == 'X')
                {
                 for(i=0; i<4; i++)
                   pass_code5[i]=set_code[i];
@@ -213,7 +216,7 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
             }
           }
         
-		else if ((password_set == 1) && (key != '#'))  // user input 4 characters but failed to follow-up with #     
+		else if ((password_set == 1) && (key != 0x23))  // user input 4 characters but failed to follow-up with #     
            {
             LCDClear();
             LCDPrintString("Invalid");
@@ -226,10 +229,10 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
             for(i=0; i<4; i++)
               set_code[i]= 'Z';
            }
-       }
+       } 
 
  //**************************************User Mode********************************************//
-if(safeguard==0 && mode!=2)
+if(safeguard1==0 && safeguard2==0 && mode!=2)
 {
      if((key != -1) && (key!='*') && (key != '#')) 
             {
@@ -319,6 +322,7 @@ if(safeguard==0 && mode!=2)
                for(i=0; i<4; i++)
                   input_code[i] = 'X'; // re-initialize user input in order to reuse
              }
+    safeguard2=0;
     scanKeypad = 0;  
     }
   }
