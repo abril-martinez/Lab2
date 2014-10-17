@@ -67,7 +67,7 @@ char pass_code5[4] = {'X','X','X','X'};
 char input_code[4] = {'X', 'X','X','X'};
 char set_code[4] = {'Z', 'Z', 'Z', 'Z'};
 
-//********************************************Timer1******************************************//
+//***************************************Delay**Timer1******************************************//
 
 // Timer 1 used for delay
 T1CONbits.TCKPS1 = 1;
@@ -103,7 +103,7 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
 	 if((key == 0x2A) && (input_code[0] == 'X'))  // "*" = 0x2A
        {
         LCDMoveCursor(1,0);		
-        LCDPrintChar(key);                                                  //when to lower flag
+        LCDPrintChar(key);                                                  
         input_code[0] = 0x2A;
         safeguard1=1;
        }
@@ -135,7 +135,50 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
         for(i=0; i<4; i++)
           input_code[i] = 'X'; 
       } 
-
+ //**************************************User Mode********************************************//
+   if(safeguard1==0 && safeguard2==0 && mode!=2)
+    {
+     if((key != -1) && (key!='*') && (key != '#')) 
+            {
+             if(input_code[0]== 'X')
+              {
+               input_code[0] = key;
+               LCDMoveCursor(1,0);		
+			   LCDPrintChar(key);
+              }
+             else if((input_code[0]!= 'X') && (input_code[1] == 'X'))
+              {
+               input_code[1] = key;
+               LCDMoveCursor(1,1);
+               LCDPrintChar(key);
+ 			  }
+             else if((input_code[1] != 'X') && (input_code[2] == 'X'))
+              {
+               input_code[2] = key;
+               LCDMoveCursor(1,2);
+               LCDPrintChar(key); 
+              }
+             else if((input_code[2] != 'X') && (input_code[3] == 'X'))
+              {
+               input_code[3] = key;
+               check_password = 1;  // all 4-digits entered; raise check password flag
+               reset = 1; // raise reset flag
+               LCDMoveCursor(1,3);
+               LCDPrintChar(key);
+               delay(); // 1 sec delay	
+			  }
+           }
+     else   // pressing buttons simultaneously will result in "BAD"                  
+        {
+         LCDClear();
+         LCDPrintString("Bad");
+         delay(); // 1 sec
+         delay(); // 1 sec
+         reset = 1;
+         for(i=0; i<4; i++)
+          input_code[i] = 'X'; // re-initialize user input
+        }    
+} 
 //***************************************In Program Mode*************************************//           
         
      if(mode==2) 
@@ -227,57 +270,16 @@ IFS0bits.T1IF = 0; // reset interrupt flag for Timer1
             reset=1;
             password_set=0;
             for(i=0; i<4; i++)
+              {
+              input_code[i]='X';
               set_code[i]= 'Z';
+               }
            }
-       } 
+       }
 
- //**************************************User Mode********************************************//
-if(safeguard1==0 && safeguard2==0 && mode!=2)
-{
-     if((key != -1) && (key!='*') && (key != '#')) 
-            {
-             if(input_code[0]== 'X')
-              {
-               input_code[0] = key;
-               LCDMoveCursor(1,0);		
-			   LCDPrintChar(key);
-              }
-             else if((input_code[0]!= 'X') && (input_code[1] == 'X'))
-              {
-               input_code[1] = key;
-               LCDMoveCursor(1,1);
-               LCDPrintChar(key);
- 			  }
-             else if((input_code[1] != 'X') && (input_code[2] == 'X'))
-              {
-               input_code[2] = key;
-               LCDMoveCursor(1,2);
-               LCDPrintChar(key); 
-              }
-             else if((input_code[2] != 'X') && (input_code[3] == 'X'))
-              {
-               input_code[3] = key;
-               check_password = 1;  // all 4-digits entered; raise check password flag
-               reset = 1; // raise reset flag
-               LCDMoveCursor(1,3);
-               LCDPrintChar(key);
-               delay(); // 1 sec delay	
-			  }
-           }
-     else   // pressing buttons simultaneously will result in "BAD"                  
-        {
-         LCDClear();
-         LCDPrintString("Bad");
-         delay(); // 1 sec
-         delay(); // 1 sec
-         reset = 1;
-         for(i=0; i<4; i++)
-          input_code[i] = 'X'; // re-initialize user input
-        }    
-}        
 //********************************Compare User Input with Database************************//          
      
-     if(check_password == 1)
+     if(check_password == 1 && safeguard2 ==0)
              {
               check_password = 0; // set flag low
               for(i=0; i<4; i++)
